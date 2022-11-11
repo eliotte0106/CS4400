@@ -1,0 +1,326 @@
+-- CS4400: Introduction to Database Systems (Fall 2022)
+-- Phase II: Create Table & Insert Statements [v0] Monday, September 5, 2022 @ 7:50pm (Local/EDT)
+
+-- Team 26
+-- Jihong Park (jpark3027)
+-- Ana Vazquez Badillo (Abadillo3)
+-- Melanie Webster (Mwebster33)
+-- Faith Anderson (fanderson30)
+
+-- Directions:
+-- Please follow all instructions for Phase II as listed on Canvas.
+-- Fill in the team number and names and GT usernames for all members above.
+-- Create Table statements must be manually written, not taken from an SQL Dump file.
+-- This file must run without error for credit.
+
+-- ------------------------------------------------------
+-- CREATE TABLE STATEMENTS AND INSERT STATEMENTS BELOW
+-- ------------------------------------------------------
+
+-- create tables
+
+DROP DATABASE IF EXISTS phase2;
+CREATE DATABASE IF NOT EXISTS phase2;
+USE phase2;
+
+DROP TABLE IF EXISTS user;
+CREATE TABLE user (
+  username varchar(40) not null,
+  first_name varchar(100) not null,
+  last_name varchar(100) not null,
+  address varchar(40) not null,
+  birthdate date not null,
+  taxID varchar(11) default null,
+  hired date default null,
+  experience integer default null,
+  salary integer default null,
+  primary key (username),
+  unique (taxID)
+ ) ENGINE=innodb;
+
+DROP TABLE IF EXISTS employee;
+CREATE TABLE employee (
+  username varchar(40) not null,
+  taxID varchar(11) not null,
+  hired date default null,
+  experience integer default null,
+  salary integer default null,
+  employed_by varchar(40) default null,
+  primary key (taxID),
+  constraint fk1 foreign key (username) references user (username)
+ ) ENGINE=innodb;
+
+DROP TABLE IF EXISTS emp_pilot;
+CREATE TABLE emp_pilot (
+  employee_role varchar(40) not null,
+  username varchar(40) not null,
+  experience integer default null,
+  licenseID integer default null,
+  taxID varchar(11) not null,
+  constraint fk2 foreign key (taxID) references employee (taxID),
+  constraint fk3 foreign key (username) references employee (username)
+ ) ENGINE=innodb;
+
+DROP TABLE IF EXISTS emp_worker;
+CREATE TABLE emp_worker (
+  employee_role varchar(40) not null,
+  username varchar(40) not null,
+  experience integer default null,
+  licenseID integer default null,
+  taxID varchar(11) not null,
+  constraint fk4 foreign key (taxID) references employee (taxID),
+  constraint fk5 foreign key (username) references employee (username)
+ ) ENGINE=innodb;
+
+DROP TABLE IF EXISTS location;
+CREATE TABLE location (
+  label varchar(40) not null,
+  x_coord integer not null,
+  y_coord integer not null,
+  space integer default null,
+  primary key (label)
+ ) ENGINE=innodb;
+
+DROP TABLE IF EXISTS service;
+CREATE TABLE service (
+  id varchar(40) not null,
+  long_name varchar(100) not null,
+  homebase varchar(40) not null,
+  manager varchar(40) not null,
+  primary key (id),
+  constraint fk6 foreign key (manager) references emp_worker (username),
+  constraint fk7 foreign key (homebase) references location (label)
+ ) ENGINE=innodb;
+
+DROP TABLE IF EXISTS work_for;
+CREATE TABLE work_for (
+  employee_role varchar(40) not null,
+  username varchar(40) not null,
+  experience integer default null,
+  taxID varchar(11) not null,
+  work_for varchar(40) default null,
+  constraint fk8 foreign key (taxID) references emp_worker (taxID),
+  constraint fk9 foreign key (username) references emp_worker (username),
+  constraint fk10 foreign key (work_for) references service (id)
+ ) ENGINE=innodb;
+
+DROP TABLE IF EXISTS owner;
+CREATE TABLE owner (
+  employee_role varchar(40) not null,
+  username varchar(40) not null,
+  licenseID integer default null,
+  taxID varchar(11) default null,
+  hired date default null,
+  experience integer default null,
+  salary integer default null,
+  constraint fk11 foreign key (username) references user (username)
+ ) ENGINE=innodb;
+
+DROP TABLE IF EXISTS restaurant;
+CREATE TABLE restaurant (
+  long_name varchar(40) not null,
+  rating integer not null,
+  spent integer not null,
+  location varchar(40) not null,
+  x_coord integer not null,
+  y_coord integer not null,
+  unique (long_name),
+  constraint fk12 foreign key (location) references location (label)
+ ) ENGINE=innodb;
+
+DROP TABLE IF EXISTS fund;
+CREATE TABLE fund (
+  long_name varchar(40) default null,
+  funded_by varchar(40) default null,
+  amount_invested integer default null,
+  dt_invested date default null,
+  constraint fk13 foreign key (long_name) references restaurant (long_name),
+  constraint fk14 foreign key (funded_by) references owner (username)
+ ) ENGINE=innodb;
+
+DROP TABLE IF EXISTS ingredient;
+CREATE TABLE ingredient (
+  barcode varchar(40) not null,
+  iname varchar(40) not null,
+  weight integer not null,
+  primary key (barcode)
+ ) ENGINE=innodb;
+
+DROP TABLE IF EXISTS drone;
+CREATE TABLE drone (
+  id varchar(40) not null,
+  tag integer not null,
+  fuel integer not null,
+  capacity integer not null,
+  sales integer not null,
+  flown_by varchar(40) default null,
+  swarm_id varchar(40) default null,
+  swarm_tag integer default null,
+  hover varchar(40) not null,
+  hover_x_coord integer not null,
+  hover_y_coord integer not null,
+  primary key (id, tag),
+  constraint fk15 foreign key (id) references service (id),
+  constraint fk16 foreign key (hover) references location (label)
+ ) ENGINE=innodb;
+
+DROP TABLE IF EXISTS drone_contain;
+CREATE TABLE drone_contain (
+  barcode varchar(40) default null,
+  id varchar(40) default null,
+  tag integer default null,
+  quantity integer default null,
+  price integer default null,
+  iname varchar(40) default null,
+  weight integer default null,
+  constraint fk17 foreign key (barcode) references ingredient (barcode),
+  constraint fk18 foreign key (id, tag) references drone (id, tag)
+ ) ENGINE=innodb;
+
+-- insert statements
+
+insert into user values
+('agarcia7', 'Alejandro', 'Garcia', '710 Living Water Drive', '1966-10-29', '999-99-9999', '2019-03-17', 24, 41000),
+('awilson5', 'Aaron', 'Wilson', '220 Peachtree Street', '1963-11-11', '111-11-1111', '2020-03-15', 9, 46000),
+('bsummers4', 'Brie', 'Summers', '5105 Dragon Star Circle', '1976-02-09', '000-00-0000', '2018-12-06', 17, 35000),
+('cjordan5', 'Clark', 'Jordan', '77 Infinite Stars Road', '1966-06-05', NULL, NULL, NULL, NULL),
+('ckann5', 'Carrot', 'Kann', '64 Knights Square Trail', '1972-09-01', '640-81-2357', '2019-08-03', 27, 46000),
+('csoares8', 'Claire', 'Soares', '706 Living Stone Way', '1965-09-03', '888-88-8888', '2019-02-25', 26, 57000),
+('echarles19', 'Ella', 'Charles', '22 Peachtree Street', '1974-05-06', '777-77-7777', '2021-01-02', 3, 27000),
+('eross10', 'Erica', 'Ross', '22 Peachtree Street', '1975-04-02', '444-44-4444', '2020-04-17', 10, 61000),
+('fprefontaine6', 'Ford', 'Prefontaine', '10 Hitch Hikers Lane', '1961-01-28', '121-21-2121', '2020-04-19', 5, 20000),
+('hstark16', 'Harmon', 'Stark', '53 Tanker Top Lane', '1971-10-27', '555-55-5555', '2018-07-23', 20, 59000),
+('jstone5', 'Jared', 'Stone', '101 Five Finger Way', '1961-01-06', NULL, NULL, NULL, NULL),
+('lrodriguez5', 'Lina', 'Rodriguez', '360 Corkscrew Circle', '1975-04-02', '222-22-2222', '2019-04-15', 20, 58000),
+('mrobot1', 'Mister', 'Robot', '10 Autonomy Trace', '1988-11-02', '101-01-0101', '2015-05-27', 8, 38000),
+('mrobot2', 'Mister', 'Robot', '10 Clone Me Circle', '1988-11-02', '010-10-1010', '2015-05-27', 8, 38000),
+('rlopez6', 'Radish', 'Lopez', '8 Queens Route', '1999-09-03', '123-58-1321', '2017-02-05', 51, 64000),
+('sprince6', 'Sarah', 'Prince', '22 Peachtree Street', '1968-06-15', NULL, NULL, NULL, NULL),
+('tmccall5', 'Trey', 'McCall', '360 Corkscrew Circle', '1973-03-19', '333-33-3333', '2018-10-17', 29, 33000);
+
+insert into employee values
+('agarcia7', '999-99-9999', '2019-03-17', 24, 41000, 'rr'),
+('awilson5', '111-11-1111', '2020-03-15', 9, 46000, 'osf'),
+('bsummers4', '000-00-0000', '2018-12-06', 17, 35000, 'hf'),
+('ckann5', '640-81-2357', '2019-08-03', 27, 46000, 'osf'),
+('csoares8', '888-88-8888', '2019-02-25', 26, 57000, null),
+('echarles19', '777-77-7777', '2021-01-02', 3, 27000, 'rr'),
+('eross10', '444-44-4444', '2020-04-17', 10, 61000, 'osf'),
+('fprefontaine6', '121-21-2121', '2020-04-19', 5, 20000, 'hf'),
+('hstark16', '555-55-5555', '2018-07-23', 20, 59000, 'hf'),
+('lrodriguez5', '222-22-2222', '2019-04-15', 20, 58000, null),
+('mrobot1', '101-01-0101', '2015-05-27', 8, 38000, 'osf, rr'),
+('mrobot2', '010-10-1010', '2015-05-27', 8, 38000, null),
+('rlopez6', '123-58-1321', '2017-02-05', 51, 64000, 'rlopez6'),
+('tmccall5', '333-33-3333', '2018-10-17', 29, 33000, 'hf');
+
+insert into emp_pilot values
+('pilot role', 'agarcia7', 610623, 38,'999-99-9999'),
+('pilot role', 'awilson5', 314159, 41, '111-11-1111'),
+('pilot role', 'bsummers4', 411911, 35, '000-00-0000'),
+('pilot role', 'csoares8', 343563, 7, '888-88-8888'),
+('pilot role', 'echarles19', 236001, 10, '777-77-7777'),
+('pilot role', 'fprefontaine6', 657483, 2, '121-21-2121'),
+('pilot role', 'lrodriguez5', 287182, 67, '222-22-2222'),
+('pilot role', 'mrobot1', 101010, 18, '101-01-0101'),
+('pilot role', 'rlopez6', 235711, 58, '123-58-1321'),
+('pilot role', 'tmccall5', 181633, 10, '333-33-3333');
+
+insert into emp_worker values
+('worker role', 'ckann5', null, null, '640-81-2357'),
+('worker role', 'csoares8', null, null, '888-88-8888'),
+('worker role', 'echarles19', null, null, '777-77-7777'),
+('worker role', 'eross10', null, null, '444-44-4444'),
+('worker role', 'hstark16', null, null, '555-55-5555'),
+('worker role', 'mrobot2', null, null, '010-10-1010'),
+('worker role', 'tmccall5', null, null, '333-33-3333');
+
+insert into location values
+('plaza',  -4, -3, 10),
+('buckhead',  7, 10, 8),
+('avalon', 2, 15, null),
+('mercedes',  -8, 5, null),
+('midtown', 2, 1, 7),
+('southside', 1, -16, 5),
+('airport', 5, -6, 15),
+('highpoint', 11, 3, 4);
+
+insert into service values
+('hf', 'Herban Feast', 'southside', 'hstark16'),
+('osf', 'On Safari Foods', 'southside', 'eross10'),
+('rr', 'Ravishing Radish', 'avalon', 'echarles19');
+
+insert into work_for values
+('worker role', 'ckann5', null, '640-81-2357', 'osf'),
+('worker role', 'echarles19', null, '777-77-7777', 'rr'),
+('worker role', 'eross10', null, '444-44-4444', 'osf'),
+('worker role', 'hstark16', null, '555-55-5555', 'hf'),
+('worker role', 'tmccall5', null, '333-33-3333', 'hf');
+
+insert into owner values
+('owner role', 'cjordan5', NULL, NULL, NULL, NULL, NULL),
+('owner role', 'jstone5', NULL, NULL, NULL, NULL, NULL),
+('owner role', 'sprince6', NULL, NULL, NULL, NULL, NULL);
+
+insert into restaurant values
+('Bishoku', 5, 10, 'plaza', -4, -3),
+('Casi Cielo', 5, 30, 'plaza', -4, -3),
+('Ecco', 3, 0, 'buckhead', 7, 10),
+('Fogo de Chao', 4, 30, 'buckhead', 7, 10),
+('Hearth', 4, 0, 'avalon', 2, 15),
+('Il Giallo', 4, 10, 'mercedes', -8, 5),
+('Lure', 5, 20, 'midtown', 2, 1),
+('Micks', 2, 0, 'southside', 1, -16),
+('South City Kitchen', 5, 30, 'midtown', 2, 1),
+('Tre Vele', 4, 10, 'plaza', -4, -3);
+
+insert into fund values
+('Bishoku', NULL, NULL, NULL),
+('Casi Cielo', NULL, NULL, NULL),
+('Ecco', 'jstone5', 20, '2022-10-25'),
+('Fogo de Chao', NULL, NULL, NULL),
+('Hearth',  NULL, NULL, NULL),
+('Il Giallo', 'sprince6', 10, '2022-10-25'),
+('Lure', 'jstone5', 30, '2022-09-08'),
+('Micks',  NULL, NULL, NULL),
+('South City Kitchen', 'jstone5', 5, '2022-07-25'),
+('Tre Vele', NULL, NULL, NULL);
+
+insert into ingredient values
+('bv_4U5L7M', 'balsamic vinegar', 4),
+('clc_4T9U25X', 'caviar', 5),
+('ap_9T25E36L', 'oie gras', 4),
+('pr_3C6A9R', 'prosciutto', 6),
+('ss_2D4E6L', 'saffron', 3),
+('hs_5E7L23M', 'truffles', 3);
+
+insert into drone values
+('hf', 1, 100, 6, 0, 'fprefontaine6', null, null, 'southside', 1, -16),
+('hf', 5, 27, 7, 100, 'fprefontaine6', null, null, 'buckhead', 7, 10),
+('hf', 8, 100, 8, 0, 'bsummers4', null, null, 'southside',  1, -16),
+('hf', 11, 25, 10, 0, null, 'hf', 5, 'buckhead',  7, 10),
+('hf', 16, 17, 5, 40, 'fprefontaine6', null, null, 'buckhead', 7, 10),
+('osf', 1, 100, 9, 0, 'awilson5', null, null, 'airport', 5, -6),
+('osf', 2, 75, 7, 0, null, 'osf', 1, 'airport', 5, -6),
+('rr', 3, 100, 5, 50, 'agarcia7', null, null, 'avalon', 2, 15),
+('rr', 7, 53, 5, 100, 'agarcia7', null, null, 'avalon', 2, 15),
+('rr', 8, 100, 6, 0, 'agarcia7', null, null, 'highpoint', 11, 3),
+('rr', 11, 90, 6, 0, null, 'rr', 8, 'highpoint', 11, 3);
+
+insert into drone_contain values
+(NULL, 'rr', 7, NULL, NULL, NULL, NULL),
+(NULL, 'hf', 16, NULL, NULL, NULL, NULL),
+(NULL, 'rr', 8, NULL, NULL, NULL, NULL),
+(NULL, 'rr', 11, NULL, NULL, NULL, NULL),
+('bv_4U5L7M', NULL, NULL, NULL, NULL, 'balsamic vinegar', 4),
+('clc_4T9U25X', 'rr', 3, 2, 28, 'caviar', 5),
+('clc_4T9U25X', 'hf', 5, 1, 30, 'caviar', 5),
+('ap_9T25E36L', NULL, NULL, NULL, NULL, 'foie gras', 4),
+('pr_3C6A9R', 'osf', 1, 5, 20, 'prosciutto', 6),
+('pr_3C6A9R', 'hf', 8, 4, 18, 'prosciutto', 6),
+('ss_2D4E6L', 'osf', 1, 3, 23, 'saffron', 3),
+('ss_2D4E6L', 'hf', 11, 3, 19, 'saffron', 3),
+('ss_2D4E6L', 'hf', 1, 6, 27, 'saffron', 3),
+('hs_5E7L23M', 'osf', 2, 7, 14, 'truffles', 3),
+('hs_5E7L23M', 'rr', 3, 2, 15, 'truffles', 3),
+('hs_5E7L23M', 'hf', 5, 4, 17, 'truffles', 3);
