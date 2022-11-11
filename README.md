@@ -2,4 +2,5 @@
 - Phase 1
   - EER Diagram
 - Phase 2
-  - In Progress
+  - SQL file
+  - Relational Schema & Unhandled Constraints List
